@@ -1,0 +1,30 @@
+name: Reproducible pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+      
+    - name: Build the Docker image
+      run: docker build -t housing_image .
+      
+    - name: Docker Run Action
+      run: >
+        docker run --rm --name housing_container -v 
+        /github/workspace/shared_folder:/home/housing/shared_folder:rw 
+        housing_image
+      
+    - uses: actions/upload-artifact@v3
+      with:
+        name: housing_output_${{ github.sha }}
+        path: /github/workspace/shared_folder/
